@@ -8,7 +8,7 @@ Convierte pedidos de **Eurofiel** y **El Corte Inglés (ECI)** en:
 - Carpetas por modelo con su propio PDF filtrado.
 - TXT EDI repartidos por modelo (LINPED, CABPED, etc.).
 
-> Proyecto DEMO, con datos ficticios y rutas locales, pensado como ejemplo realista de automatización para logística/retail. 
+> Proyecto DEMO con datos ficticios y rutas locales, pensado como un ejemplo realista de automatización para logística/retail.
 
 ---
 
@@ -22,17 +22,17 @@ El flujo típico suele ser:
 - Copiar y pegar a Excel.
 - Calcular totales.
 - Separar información por modelo para enviarla a fábrica o a otros departamentos.
-- Gestionar también los ficheros **TXT EDI** (LINPED, CABPED, LOCPED, OBSPED, OBSLPED).
+- Gestionar los ficheros **TXT EDI** (LINPED, CABPED, LOCPED, OBSPED, OBSLPED).
 
 Este proceso es **lento, repetitivo y propenso a errores**.
 
 Este proyecto automatiza todo ese trabajo:
 
-- **Lee el PDF completo**.
+- **Lee el PDF completo.**
 - **Interpreta las líneas de detalle** (modelo, color, talla, unidades, precio).
-- **Calcula totales y resumen por modelo / color**.
-- **Genera Excels y PDFs organizados por modelo**.
-- **Reparte los TXT EDIWIN en carpetas por modelo**, listos para integrarse en otros sistemas. 
+- **Calcula totales y resumen por modelo/color.**
+- **Genera Excels y PDFs organizados por modelo.**
+- **Reparte los TXT EDIWIN por modelo**, listos para integrarse en otros sistemas.
 
 ---
 
@@ -40,127 +40,117 @@ Este proyecto automatiza todo ese trabajo:
 
 ### 1. Interfaz web en Streamlit
 
-Desde la web (local):
+Desde la interfaz (local):
 
-- Seleccionas el cliente: **Eurofiel** o **El Corte Inglés**.
-- Subes un PDF EDIWIN.
-- Ves una **vista previa** coloreada por modelo.
-- Descargas:
+- Selección del cliente: **Eurofiel** o **El Corte Inglés**.
+- Subida de PDF EDIWIN.
+- Vista previa coloreada por modelo.
+- Descargas disponibles:
   - Excel global.
   - CSV.
-  - Carpetas por modelo (con PDF y Excel).
-- (Opcional) Subes los **TXT EDIWIN** y los reparte por modelo en las mismas carpetas. 
+  - Carpetas por modelo (PDF + Excel).
+- Opcional: subida de TXT EDIWIN para repartirlos automáticamente por modelo.
 
 ---
 
 ### 2. Parser Eurofiel
 
-- Divide el PDF en pedidos usando el patrón `Nº Pedido :`.
-- Extrae de cada bloque:
-  - Tipo de operación: `PEDIDO`, `REEMPLAZO`, `ANULACIÓN`.  
-  - Nº de pedido, fecha de entrega, país, descripción.
-  - Modelo (código proveedor), patrón (código cliente).
+- Divide el PDF por bloques basados en `Nº Pedido :`.
+- Extrae:
+  - Tipo de operación: `PEDIDO`, `REEMPLAZO`, `ANULACIÓN`.
+  - Nº pedido, fecha de entrega, país, descripción.
+  - Modelo (proveedor), patrón (cliente).
   - Precio neto.
-  - Unidades totales.
-  - Unidades por talla (`XXS, XS, S, M, L, XL, XXL, 34, 36, ... 48`). 
-- Detecta automáticamente las líneas de detalle con expresiones regulares y separa:
-  - `EAN13`
-  - Código proveedor: `MODELO/COLOR/TALLA`
-  - Código cliente: `PATRON/COLOR/TALLA`
-  - Cantidad, precios bruto/neto. 
-- Agrupa la información en un `DataFrame` de pandas, listo para exportar.
+  - Unidades totales y por talla.
+- Detecta líneas de detalle usando regex:
+  - EAN13
+  - MODELO/COLOR/TALLA
+  - PATRÓN/COLOR/TALLA
+  - Cantidad, precio bruto y precio neto
+- Agrupa en `DataFrame` listo para exportación.
 
 ---
 
 ### 3. Parser El Corte Inglés (ECI)
 
 - Procesa página a página con `pdfplumber`.
-- Detecta el tipo de documento por texto: `Pedido`, `Reposicion`, `Anulacion Pedido`.
-- Extrae de cada página:
-  - Nº de pedido, departamento, fecha de entrega.
-  - Sucursal de entrega.
-- Localiza las líneas de detalle (nº + EAN13…) y obtiene:
-  - Descripción completa (incluyendo líneas partidas).
-  - Modelo.
-  - Color.
-  - Código de talla (por ejemplo `003` en `FLOR003`).
-  - Talla humana usando un mapa de equivalencias:  
-    `001→XXS, 002→XS, 003→S, 004→M, ... 034→34, 036→36, ...`. 
-- Agrupa por (modelo, color, sucursal…) y pivota las tallas a columnas, generando:
-`TIPO | N_PEDIDO | MODELO | COLOR | ... | S | M | L | 34 | 36 | ... | TOTAL_UNIDADES`
+- Clasifica por tipo de documento:
+  - `Pedido`
+  - `Reposicion`
+  - `Anulacion Pedido`
+- Extrae:
+  - Nº pedido
+  - Departamento
+  - Fecha de entrega
+  - Sucursal de entrega
+- Identifica líneas de detalle:
+  - Descripción multipartida
+  - Modelo
+  - Color
+  - Código de talla (`003`, `004`, `034`…)
+  - Talla humana usando equivalencias
+- Pivota tallas hacia columnas:  
+  `TIPO | N_PEDIDO | MODELO | COLOR | S | M | L | 34 | 36 | … | TOTAL_UNIDADES`
 
+---
 
 ### 4. Excels formateados automáticamente
 
-- Al exportar a Excel:
+Al generar el Excel:
 
-   - Bordes finos en todas las celdas.
+- Bordes finos en todas las celdas.
+- Cabecera amarilla + negrita (estilo corporativo).
+- Fila **TOTAL** destacada:
+  - Total de pedidos.
+  - Total de unidades.
+  - Totales por talla.
+- Oculta columnas de tallas sin unidades.
+- Para ECI incluye:
+  - **Hoja Resumen modelo+color**
+  - **Hoja Resumen modelo**
 
-   - Cabecera en amarillo + negrita (estilo corporativo).
-
-   - Fila TOTAL resaltada en amarillo + negrita:
-
-      - Total de pedidos.
-
-      - Total de unidades.
-
-      - Totales por talla.
-
-   - Oculta automáticamente columnas de tallas que estén todo a 0 (más limpio para el usuario).
-
-   - Dos hojas de resumen en el caso de ECI:
-
-      - Resumen modelo+color.
-
-      - Resumen modelo.
+---
 
 ### 5. Carpetas y PDFs por modelo
 
 Para ambos proveedores:
 
-   - Crea una carpeta por modelo (y patrón en el caso de Eurofiel).
+- Crea una carpeta por modelo (o modelo+patrón en Eurofiel).
+- Filtra el PDF original y guarda:
+  - PDF únicamente con las páginas relevantes.
+  - Excel filtrado con totales.
+- Maneja páginas sin detalle arrastrándolas al último modelo detectado.
 
-   - Filtra el PDF original y guarda dentro:
-
-      - Un PDF con sólo las páginas relevantes para ese modelo.
-
-      - Un Excel con los datos filtrados y totales.
-
-Para esto se construye un mapa modelo → páginas buscando el código de modelo dentro del texto de cada página y arrastrando páginas sin detalle al último modelo detectado.
+---
 
 ### 6. TXT EDIWIN repartidos por modelo
 
-La aplicación permite subir los ficheros TXT generados por EDIWIN:
+Permite subir:
 
-   - CABPED_*.TXT
+- `CABPED_*.TXT`
+- `LINPED_*.TXT`
+- `LOCPED_*.TXT`
+- `OBSPED_*.TXT`
+- `OBSLPED_*.TXT`
 
-   - LINPED_*.TXT
+Procesa:
 
-   - LOCPED_*.TXT
+- A partir de **LINPED** detecta:
+  - Pedido interno
+  - Modelo
+  - (Patrón en Eurofiel)
+- Construye el mapa:
+  - **Eurofiel → pedido_int → {MODELO_PATRON}**
+  - **ECI → pedido → {MODELO}**
+- Copia cada TXT filtrado dentro de la carpeta de cada modelo.
 
-   - OBSPED_*.TXT
+Útil para depuración o integraciones posteriores.
 
-   - OBSLPED_*.TXT
+---
 
-Y hace lo siguiente:
+## 🧱 Arquitectura del proyecto
 
-   - A partir de LINPED detecta para cada línea:
-
-      - Nº de pedido interno.
-
-      - Modelo (y patrón en Eurofiel).
-
-   - Construye un mapa:
-
-      - Eurofiel → pedido_int → {MODELO_PATRON}
-
-      - ECI → pedido → {MODELO}
-
-   - Crea en cada carpeta de modelo una copia filtrada de los TXT con solo los registros que afectan a ese modelo.
-
-Esto deja un set de ficheros EDI por modelo, muy útil para depuración o integraciones posteriores.
-
-### 🧱 Arquitectura del proyecto
+```text
 ediwin-parser-demo/
 │
 ├── src/
@@ -180,198 +170,137 @@ ediwin-parser-demo/
 ├── requirements.txt
 ├── .gitignore
 └── README.md
+```
 
+> En esta versión DEMO, todas las rutas son locales (`output/...`). No hay datos reales ni rutas de red.
 
-En la demo, todas las rutas son locales (output/...). No hay rutas de red ni datos sensibles.
+---
 
-### 🛠 Stack tecnológico
+## 🛠 Stack tecnológico
 
-   - Python
+- **Python**
+- **Streamlit** – interfaz web
+- **pandas** – tratamiento de datos
+- **pdfplumber** – extracción de texto de PDF
+- **pypdf** – filtrado y creación de PDFs por modelo
+- **openpyxl** – Excel con formato avanzado
+- **regex** – detección de patrones complejos
 
-   - Streamlit – interfaz web y carga de ficheros.
+---
 
-   - pandas – modelado de datos, agrupaciones, pivots.
+## 🚀 Puesta en marcha
 
-   - pdfplumber – extracción de texto desde PDF.
+### 1. Clonar el repositorio
 
-   - pypdf – filtrado y escritura de PDFs por modelo.
+```bash
+git clone https://github.com/tuusuario/ediwin-parser-demo.git
+cd ediwin-parser-demo
+```
 
-   - openpyxl – estilo y formato avanzado en Excel (bordes, colores, totales).
+### 2. Crear entorno virtual (recomendado)
 
-   - Expresiones regulares (re) para parseo de líneas y detección de patrones (modelos, tallas, etc.).
+```bash
+python -m venv .venv
+source .venv/bin/activate       # Linux/macOS
+.\.venv\Scriptsctivate        # Windows
+```
 
-### 🚀 Puesta en marcha
-1. Clonar el repositorio
-   - git clone https://github.com/tuusuario/ediwin-parser-demo.git
-   - cd ediwin-parser-demo
+### 3. Instalar dependencias
 
-2. Crear entorno virtual (recomendado)
-   - python -m venv .venv
-   # Linux/macOS
-   - source .venv/bin/activate       
-   # o Windows
-   - .\.venv\Scripts\activate        
+```bash
+pip install -r requirements.txt
+```
 
-3. Instalar dependencias
-   - pip install -r requirements.txt
+### 4. Lanzar la aplicación
 
-4. Lanzar la aplicación
-   - streamlit run src/app.py
+```bash
+streamlit run src/app.py
+```
 
+Abrirá la app en `http://localhost:8501`.
 
-Se abrirá la app en el navegador (normalmente en http://localhost:8501).
+---
 
-### 📥 Uso de la aplicación
-A. Flujo Eurofiel
+## 📥 Uso de la aplicación
 
-   1. En la web, selecciona Cliente → Eurofiel.
+### A. Eurofiel
 
-   2. Sube un PDF de ejemplo de la carpeta samples/eurofiel/.
+1. Seleccionar **Cliente → Eurofiel**.
+2. Subir PDF desde `samples/eurofiel/`.
+3. Vista previa:
+   - Tabla por talla
+   - Totales por modelo  
+4. Descargas:
+   - Excel (Pedidos + Resumen)
+   - CSV  
+5. Botón: **Crear carpetas y PDFs por modelo**  
+6. Opcional: subir TXT de ejemplo desde `samples/eurofiel_txt/`.
 
-   3. La app mostrará:
+---
 
-      - Tabla de pedidos con columnas por talla.
+### B. El Corte Inglés (ECI)
 
-      - Total de unidades por modelo.
+1. Seleccionar **Cliente → El Corte Inglés**.
+2. Subir `ECI_DEMO_PARSER_FINAL.pdf`.
+3. Vista previa:
+   - Tallas pivotadas
+   - Totales por modelo
+4. Descargas:
+   - Excel (Pedidos + Resumen modelo+color + Resumen modelo)
+   - CSV  
+5. Botón: **Crear carpetas y PDFs por modelo**  
+6. Opcional: TXT desde `samples/eci_txt/`.
 
-   4. Opciones de descarga:
+---
 
-      - Excel con:
+## 🔬 Detalles técnicos interesantes
 
-         - Hoja Pedidos (detalle).
+El proyecto demuestra:
 
-         - Hoja Resumen por modelo con fila TOTAL.
+- Parseo robusto de PDFs con estructuras semi-fijas.
+- Uso intensivo de **regex**: modelos, tallas, códigos EAN, patrones EDI.
+- Transformación avanzada con pandas:
+  - `groupby`
+  - `pivot_table`
+  - sumatorios y totales
+- Excel con formato profesional (bordes, estilos).
+- Gestión de TXT EDI reales (`latin-1`), respetando estructura original.
+- Web app funcional, ligera y usable.
 
-      - CSV con columnas de tallas activas.
+---
 
-   5. Botón: “Crear carpetas y PDFs por modelo en Eurofiel”
+## ⚠️ Limitaciones de la demo
 
-   - Genera en output/eurofiel/:
+- Los PDFs y TXT incluidos en `samples/` son **ficticios**.
+- El parser depende del layout estándar de EDIWIN.
+- No hay integración con ERP ni rutas de red.
+- La salida siempre es local en `output/`.
 
-      - Carpeta por modelo+patrón.
+---
 
-      - PDF filtrado.
+## 🧭 Próximas mejoras
 
-      - Excel filtrado con totales.
+- Más proveedores/formatos EDI.
+- Test unitarios para los parsers.
+- Imagen Docker para despliegue rápido.
+- Versión cloud (Streamlit Cloud / HuggingFace Spaces).
+- Configuración de reglas vía YAML/JSON.
 
-   6. Opcional: subir TXT EDIWIN (LINPED, CABPED, LOCPED, OBSPED, OBSLPED) desde samples/eurofiel_txt/ y pulsar
-   - “Repartir TXT EDIWIN por modelo en carpetas EUROFIEL”.
+---
 
-B. Flujo El Corte Inglés (ECI)
+## 👤 Autor
 
-   1. Selecciona Cliente → El Corte Inglés.
+**Aitor Susperregui — @elvasco.x**
 
-   2. Sube el PDF de ejemplo ECI_DEMO_PARSER_FINAL.pdf de samples/eci/.
+Desarrollador en formación con experiencia real en logística y tratamiento de pedidos.  
+Este proyecto nace de la necesidad de automatizar procesos repetitivos en almacén y se convierte en un caso práctico de:
 
-   3. Verás:
+- Parseo de PDFs
+- Procesamiento de datos con Python
+- Interfaces internas con Streamlit
 
-      - Vista previa con tallas pivotadas por columnas.
+Contacto:
 
-      - Suma de unidades por talla y TOTAL_UNIDADES.
-
-   4. Resúmenes:
-
-      - Resumen por MODELO + COLOR.
-
-      - Resumen por MODELO con totales.
-
-   5. Descargas:
-
-      - Excel con:
-
-         - Hoja Pedidos.
-
-         - Hoja Resumen modelo+color.
-
-         - Hoja Resumen modelo.
-
-      - CSV sin tallas vacías.
-
-   6. Botón: “Crear carpetas y PDFs por modelo en ECI”
-
-      - Genera en output/eci/ una carpeta por modelo con:
-
-         - PDF filtrado.
-
-         - Excel filtrado con fila TOTAL.
-
-   7. Opcional: subir TXT EDIWIN de ejemplo desde samples/eci_txt/ y pulsar
-   - “Repartir TXT EDIWIN por modelo en carpetas ECI”.
-
-### 🔬 Detalles técnicos interesantes
-
-Este proyecto demuestra:
-
-   - Parseo robusto de PDFs con estructuras semi–fijas (EDIWIN).
-
-   - Uso intensivo de expresiones regulares para extraer:
-
-      - Números de pedido, fechas, departamentos, sucursales.
-
-      - Códigos EAN, códigos internos, modelos, patrones.
-
-      - Tallas incrustadas al final del color (FLOR003 → FLOR + 003).
-
-   - Conversión de datos crudos en tablas analíticas con pandas, incluyendo:
-
-      - groupby por modelo/color.
-
-      - pivot_table para tallas como columnas.
-
-      - Cálculo de sumatorios y totales globales.
-
-   - Generación de Excels de nivel usuario final (no solo datos):
-
-      - Cabeceras y totales destacados.
-
-      - Bordes en todas las celdas.
-
-      - Ocultado de tallas sin unidades.
-
-   - Trabajo con TXT EDI reales en codificación latin-1, respetando saltos de línea y estructura.
-
-### ⚠️ Limitaciones de la demo
-
-   - Los PDFs y TXT incluidos en samples/ son ficticios, diseñados para mostrar el funcionamiento sin exponer datos reales.
-
-   - El parser asume un formato EDIWIN similar al de los ejemplos. Si el layout del PDF cambia mucho, habría que ajustar las expresiones regulares.
-
-   - No hay integración directa con sistemas de terceros (ERP, redes, etc.).
-   Toda la salida se genera en la carpeta local output/.
-
-### 🧭 Próximas mejoras
-
-Algunas ideas de evolución natural del proyecto:
-
-   - Más proveedores / formatos EDI.
-
-   - Test unitarios para los parsers (Eurofiel/ECI).
-
-   - Imagen Docker para despliegue rápido.
-
-   - Deploy en Streamlit Cloud u otra plataforma.
-
-   - Configuración de mapeos de tallas y reglas via YAML/JSON (en vez de estar embebido en código).
-
-### 👤 Autor
-
-Aitor Susperregui (@elvasco.x)
-
-Desarrollador en formación, con background real en logística y tratamiento de pedidos.
-Este proyecto nace de una necesidad real de automatizar tareas repetitivas en almacén
-y se ha convertido en un ejemplo práctico de:
-
-   - Parseo de PDFs.
-
-   - Tratamiento de datos con Python.
-
-   - Creación de herramientas internas con Streamlit.
-
-Si quieres contactar conmigo para hablar de desarrollo, automatización o trabajo con EDI/PDF:
-
-   -  Email: tsuspe@icloud.com
-
-   - Telefono: +34 682 714 237 (WhatsApp / Telegram)
-
-
-   -  Instagram / Marca personal: @elvasco.x
+- 📧 **tsuspe@icloud.com**
+- 📱 **+34 682 714 237** (WhatsApp / Telegram)
+- 🖤 Instagram / Marca personal: **@elvasco.x**
