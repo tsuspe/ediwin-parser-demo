@@ -1,0 +1,49 @@
+# ===== PYTHON =====
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.log
+
+# ===== ENVIRONMENTS =====
+.env
+.venv/
+venv/
+env/
+ENV/
+
+# ===== STREAMLIT =====
+.streamlit/
+
+# ===== OUTPUT =====
+output/
+# samples/
+input/
+*.xlsx
+*.csv
+*.pdf
+*.txt
+
+# Permitir subir PDFs ficticios de samples
+!samples/eci/*.pdf
+!samples/eurofiel/*.pdf
+
+# Permitir subir TXT ficticios de samples
+!samples/eci_txt/*.TXT
+!samples/eurofiel_txt/*.TXT
+
+
+# ===== OS FILES =====
+.DS_Store
+Thumbs.db
+
+# ===== EDITORS =====
+.vscode/
+.idea/
+
+# ===== CACHE =====
+*.pickle
+*.pkl
+.cache/

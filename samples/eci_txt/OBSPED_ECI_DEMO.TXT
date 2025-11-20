@@ -1,0 +1,12 @@
+00999901;1;PUR;El acuerdo para la forma y plazo de pago -Pagare no a la orden a 90 di;as- es conforme D.A. 1a Ley 3/2004, de 29 diciembre y se alcanza;;;;
+00999901;2;PUR;tomando en consideracion la naturaleza del producto, el documento de; pago y el resto de condiciones de volumen de pedido, precio y;;;;
+00999901;3;PUR;entrega que en el se establecen;;;;;
+00999901;4;PUR;109592_XIAOPING WANG;;;;;
+00999902;1;PUR;El acuerdo para la forma y plazo de pago -Pagare no a la orden a 90 di;as- es conforme D.A. 1a Ley 3/2004, de 29 diciembre y se alcanza;;;;
+00999902;2;PUR;tomando en consideracion la naturaleza del producto, el documento de; pago y el resto de condiciones de volumen de pedido, precio y;;;;
+00999902;3;PUR;entrega que en el se establecen;;;;;
+00999902;4;PUR;109592_XIAOPING WANG;;;;;
+00999903;1;PUR;El acuerdo para la forma y plazo de pago -Pagare no a la orden a 90 di;as- es conforme D.A. 1a Ley 3/2004, de 29 diciembre y se alcanza;;;;
+00999903;2;PUR;tomando en consideracion la naturaleza del producto, el documento de; pago y el resto de condiciones de volumen de pedido, precio y;;;;
+00999903;3;PUR;entrega que en el se establecen;;;;;
+00999903;4;PUR;109592_XIAOPING WANG;;;;;

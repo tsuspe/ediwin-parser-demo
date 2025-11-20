@@ -1,0 +1,4 @@
+HDR;OBSLPED;20250101;000001
+X634726;2020BL3079;Sin incidencias
+0050;2026VE0229;Entrega prevista sin retrasos
+TRL;2

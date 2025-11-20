@@ -1,0 +1,4 @@
+HDR;OBSPED;20250101;000001
+X634726;2020BL3079;Blusa estampada colección verano
+0050;2026VE0229;Vestido midi punto falda print
+TRL;2
