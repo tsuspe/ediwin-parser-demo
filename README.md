@@ -160,7 +160,7 @@ Y hace lo siguiente:
 
 Esto deja un set de ficheros EDI por modelo, muy útil para depuración o integraciones posteriores.
 
-### 7. Arquitectura del proyecto
+### 🧱 Arquitectura del proyecto
 ediwin-parser-demo/
 │
 ├── src/
@@ -184,7 +184,7 @@ ediwin-parser-demo/
 
 En la demo, todas las rutas son locales (output/...). No hay rutas de red ni datos sensibles.
 
-### 8. Stack tecnológico
+### 🛠 Stack tecnológico
 
    - Python
 
@@ -200,7 +200,7 @@ En la demo, todas las rutas son locales (output/...). No hay rutas de red ni dat
 
    - Expresiones regulares (re) para parseo de líneas y detección de patrones (modelos, tallas, etc.).
 
-### 9. Puesta en marcha
+### 🚀 Puesta en marcha
 1. Clonar el repositorio
    - git clone https://github.com/tuusuario/ediwin-parser-demo.git
    - cd ediwin-parser-demo
@@ -221,7 +221,7 @@ En la demo, todas las rutas son locales (output/...). No hay rutas de red ni dat
 
 Se abrirá la app en el navegador (normalmente en http://localhost:8501).
 
-### 10. Uso de la aplicación
+### 📥 Uso de la aplicación
 A. Flujo Eurofiel
 
    1. En la web, selecciona Cliente → Eurofiel.
@@ -298,7 +298,7 @@ B. Flujo El Corte Inglés (ECI)
    7. Opcional: subir TXT EDIWIN de ejemplo desde samples/eci_txt/ y pulsar
    - “Repartir TXT EDIWIN por modelo en carpetas ECI”.
 
-### 11. Detalles técnicos interesantes
+### 🔬 Detalles técnicos interesantes
 
 Este proyecto demuestra:
 
@@ -330,7 +330,7 @@ Este proyecto demuestra:
 
    - Trabajo con TXT EDI reales en codificación latin-1, respetando saltos de línea y estructura.
 
-### 12. Limitaciones de la demo
+### ⚠️ Limitaciones de la demo
 
    - Los PDFs y TXT incluidos en samples/ son ficticios, diseñados para mostrar el funcionamiento sin exponer datos reales.
 
@@ -339,7 +339,7 @@ Este proyecto demuestra:
    - No hay integración directa con sistemas de terceros (ERP, redes, etc.).
    Toda la salida se genera en la carpeta local output/.
 
-### 13. Próximas mejoras
+### 🧭 Próximas mejoras
 
 Algunas ideas de evolución natural del proyecto:
 
@@ -353,7 +353,7 @@ Algunas ideas de evolución natural del proyecto:
 
    - Configuración de mapeos de tallas y reglas via YAML/JSON (en vez de estar embebido en código).
 
-### 14. 👤 Autor
+### 👤 Autor
 
 Aitor Susperregui (@elvasco.x)
 
@@ -372,5 +372,6 @@ Si quieres contactar conmigo para hablar de desarrollo, automatización o trabaj
    -  Email: tsuspe@icloud.com
 
    - Telefono: +34 682 714 237 (WhatsApp / Telegram)
+
 
    -  Instagram / Marca personal: @elvasco.x
